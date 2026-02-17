@@ -1,5 +1,5 @@
 import { BaseApiService } from "@/services/api.service";
-import type { BrandsData } from "./types";
+import type { BrandsData, UpsertBrand } from "./types";
 import type { PaginatedData, QueryParams } from "@/types/common";
 import { BRANDS_ENDPOINTS } from "./endpoints.constant";
 import { router } from "@/main";
@@ -21,11 +21,7 @@ export class BrandsService extends BaseApiService {
     return res;
   }
 
-  async add(data: {
-    name: string;
-    website?: string;
-    countryOfOrigin?: string;
-  }): Promise<BrandsData> {
+  async add(data: UpsertBrand): Promise<BrandsData> {
     const [res, err] = await this.apiCallWrapper<BrandsData>({
       path: BRANDS_ENDPOINTS.ADD_BRAND,
       method: "post",
@@ -41,8 +37,24 @@ export class BrandsService extends BaseApiService {
     return res.data;
   }
 
+  async update(id: string, data: UpsertBrand): Promise<BrandsData> {
+    const [res, err] = await this.apiCallWrapper<BrandsData>({
+      path: BRANDS_ENDPOINTS.UPDATE_BRAND(id),
+      method: "patch",
+      data,
+    });
+
+    if (err) {
+      toast.error(err.message);
+      throw err;
+    }
+    router.invalidate();
+    toast.success("Brand updated successfully");
+    return res.data;
+  }
+
   async delete(id: string) {
-    const [res, err] = await this.apiCallWrapper({
+    const [, err] = await this.apiCallWrapper({
       path: BRANDS_ENDPOINTS.REMOVE_BRAND(id),
       method: "delete",
     });
@@ -53,6 +65,5 @@ export class BrandsService extends BaseApiService {
     }
     router.invalidate();
     toast.success("Brand deleted successfully");
-    return res;
   }
 }

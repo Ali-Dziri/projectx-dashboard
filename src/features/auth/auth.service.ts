@@ -1,13 +1,13 @@
 import { AUTH_ENDPOINTS } from "./endpoints.constant";
 import { BaseApiService } from "@/services/api.service";
-import type { LoginFormValues, LoginResponse } from "./types";
+import type { LoginFormValues } from "./types";
 import { toast } from "sonner";
 import { tokenManager } from "@/utils/token-manipulation";
 import { router } from "@/main";
 
 export class AuthService extends BaseApiService {
-  async login(values: LoginFormValues) {
-    const [response, error] = await this.apiCallWrapper<LoginResponse>({
+  login = async (values: LoginFormValues) => {
+    const [response, error] = await this.apiCallWrapper<string>({
       path: AUTH_ENDPOINTS.LOGIN,
       method: "post",
       data: values,
@@ -17,15 +17,15 @@ export class AuthService extends BaseApiService {
       toast.error(error.message);
       throw error;
     }
-    tokenManager.setCsrfToken(response.data.csrfToken);
+    tokenManager.setCsrfToken(response.data);
     toast.success("Login successful");
     router.navigate({
       to: "/",
     });
-  }
+  };
 
-  async logout(): Promise<void> {
-    const [res, error] = await this.apiCallWrapper({
+  logout = async (): Promise<void> => {
+    const [, error] = await this.apiCallWrapper({
       path: AUTH_ENDPOINTS.LOGOUT,
       method: "post",
     });
@@ -42,5 +42,5 @@ export class AuthService extends BaseApiService {
     router.navigate({
       to: "/login",
     });
-  }
+  };
 }

@@ -1,18 +1,8 @@
 import type { BrandsData } from "./types";
 import { Link } from "@tanstack/react-router";
 import type { Columns } from "@/types/common";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { MoreHorizontalIcon, Pencil, Trash } from "lucide-react";
-import { BrandsService } from "./brands.service";
-
-const brandsService = new BrandsService();
+import { brandsModule } from "./brands.module";
+import TableActions from "@/components/table-actions";
 
 export const columns: Columns<BrandsData> = [
   {
@@ -36,27 +26,10 @@ export const columns: Columns<BrandsData> = [
     key: "actions",
     name: "Actions",
     render: (item: BrandsData) => (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="size-8">
-            <MoreHorizontalIcon />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem>
-            <Pencil /> Edit
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            variant="destructive"
-            onClick={() => brandsService.delete(item.id)}
-          >
-            <Trash />
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <TableActions<BrandsData>
+        item={item}
+        deleteItem={() => brandsModule.service.delete(item.id)}
+      />
     ),
   },
 ];

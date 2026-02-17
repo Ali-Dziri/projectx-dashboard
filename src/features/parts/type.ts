@@ -6,13 +6,13 @@ export type PartsData = {
     name: string;
   };
   category: {
-    id: number;
+    id: string;
     name: string;
   };
   compatible_models: Array<{ id: string; name: string }>;
 };
 
-export type PartsFormData = {
+export type UpsertParts = {
   name: string;
   modelId: string;
   categoryId: string;

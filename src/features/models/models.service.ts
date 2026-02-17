@@ -3,11 +3,7 @@ import type { QueryParams, PaginatedData } from "@/types/common";
 import { MODELS } from "./endpoints.constant";
 import { router } from "@/main";
 import { toast } from "sonner";
-import type { ModelDataType } from "./types";
-
-type Fields = {
-  brands: Array<{ id: string; name: string }>;
-};
+import type { ModelDataType, Fields, UpsertModel } from "./types";
 
 export class ModelsService extends BaseApiService {
   async fetch(params: QueryParams) {
@@ -37,7 +33,7 @@ export class ModelsService extends BaseApiService {
     return res;
   }
 
-  async add(data: { name: string; brand: string; release_date?: Date }) {
+  async add(data: UpsertModel) {
     const [res, err] = await this.apiCallWrapper<ModelDataType>({
       path: MODELS.ADD_MODEL,
       method: "post",
@@ -53,8 +49,24 @@ export class ModelsService extends BaseApiService {
     return res.data;
   }
 
+  async update(id: string, data: UpsertModel) {
+    const [res, err] = await this.apiCallWrapper<ModelDataType>({
+      path: MODELS.UPDATE_MODEL(id),
+      method: "patch",
+      data,
+    });
+
+    if (err) {
+      toast.error(err.message);
+      throw err;
+    }
+    router.invalidate();
+    toast.success("Model updated successfully");
+    return res.data;
+  }
+
   async delete(id: string) {
-    const [res, err] = await this.apiCallWrapper({
+    const [, err] = await this.apiCallWrapper({
       path: MODELS.REMOVE_MODEL(id),
       method: "delete",
     });
@@ -65,6 +77,5 @@ export class ModelsService extends BaseApiService {
     }
     router.invalidate();
     toast.success("Model deleted successfully");
-    return res;
   }
 }

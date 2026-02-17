@@ -1,10 +1,10 @@
-import type { PageFormProps, TableProps } from "@/components/types";
-import type { AnyRoute, RouteApi } from "@tanstack/react-router";
+import type { TableProps } from "@/components/types";
+import type { AnyRoute } from "@tanstack/react-router";
 
 export interface PageLayoutProps<T> {
-  route: RouteApi<AnyRoute>;
+  route: AnyRoute;
   searchValue: string;
   setSearchValue: (value: string) => void;
   tableProps: TableProps<T>;
-  formProps: PageFormProps;
+  formDialog: React.ReactElement;
 }

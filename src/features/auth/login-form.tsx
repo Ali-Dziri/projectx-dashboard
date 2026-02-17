@@ -14,9 +14,11 @@ import {
   FieldError,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import * as z from "zod";
-import { useForm } from "@tanstack/react-form";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { AuthService } from "./auth.service";
+import { Spinner } from "@/components/ui/spinner";
 
 const authService = new AuthService();
 
@@ -26,24 +28,19 @@ const formSchema = z.object({
 });
 
 export default function LoginForm() {
-  const form = useForm({
+  const {
+    handleSubmit,
+    formState: { isSubmitting, isDirty, isValid },
+    control,
+    reset,
+  } = useForm({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       password: "",
     },
-    validators: {
-      onBlur: formSchema,
-      onSubmit: formSchema,
-    },
-    onSubmit: async ({ value }) => {
-      return await authService.login(value);
-    },
+    mode: "onChange",
   });
-
-  const formSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    form.handleSubmit();
-  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -55,74 +52,64 @@ export default function LoginForm() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form id="login-form" onSubmit={formSubmit}>
+          <form id="login-form" onSubmit={handleSubmit(authService.login)}>
             <FieldGroup>
-              <form.Field
+              <Controller
                 name="email"
-                children={(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid;
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-                      <Input
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        aria-invalid={isInvalid}
-                        type="email"
-                        placeholder="m@example.com"
-                        required
-                      />
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                    </Field>
-                  );
-                }}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                    <Input
+                      {...field}
+                      id={field.name}
+                      aria-invalid={fieldState.invalid}
+                      type="email"
+                      placeholder="m@example.com"
+                      required
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
               />
 
-              <form.Field
+              <Controller
                 name="password"
-                children={(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid;
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={field.name}>Password</FieldLabel>
-                      <Input
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        aria-invalid={isInvalid}
-                        type="password"
-                        placeholder="password"
-                        required
-                      />
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                    </Field>
-                  );
-                }}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                    <Input
+                      {...field}
+                      id={field.name}
+                      aria-invalid={fieldState.invalid}
+                      type="password"
+                      placeholder="password"
+                      required
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
               />
             </FieldGroup>
           </form>
         </CardContent>
         <CardFooter>
           <Field orientation="horizontal">
-            <Button type="submit" form="login-form">
+            <Button
+              type="submit"
+              form="login-form"
+              disabled={!isDirty || !isValid || isSubmitting}
+              aria-disabled={!isDirty || !isValid || isSubmitting}
+            >
+              {isSubmitting && <Spinner data-icon="inline-start" />}
               Submit
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => form.reset()}
-            >
+            <Button type="button" variant="outline" onClick={() => reset()}>
               Reset
             </Button>
           </Field>

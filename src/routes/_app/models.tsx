@@ -1,14 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ModelsService } from "@/features/models/models.service";
-import type { ModelDataType } from "@/features/models/types";
 import { z } from "zod";
-import { PageLayout } from "@/layouts/page-layout";
-import useDebounceValue from "@/hooks/useDebounceValue";
-import { useEffect, useState } from "react";
-import { columns } from "@/features/models/columns";
-import ModelsUpsertForm from "@/features/models/models-upsert-form";
-
-const modelsService = new ModelsService();
+import { modelsModule, ModelsPage } from "@/features/models/models.module";
 
 const modelsSearchSchema = z.object({
   page: z.number().default(1),
@@ -27,8 +19,8 @@ export const Route = createFileRoute("/_app/models")({
     search: search.search,
   }),
   loader: async ({ deps: { page, limit, search } }) => {
-    const res = await modelsService.fetch({ page, limit, search });
-    const res2 = await modelsService.fields();
+    const res = await modelsModule.service.fetch({ page, limit, search });
+    const res2 = await modelsModule.service.fields();
     return {
       data: res,
       fields: res2,
@@ -38,37 +30,21 @@ export const Route = createFileRoute("/_app/models")({
 });
 
 function RouteComponent() {
-  const response = Route.useLoaderData();
-  console.log("response", response);
-  const [searchValue, setSearchValue] = useState("");
-  const debouncedValue = useDebounceValue(searchValue, 500);
+  const { data, fields } = Route.useLoaderData();
   const navigate = Route.useNavigate();
 
-  useEffect(() => {
+  const handleSearchChange = (search: string) => {
     navigate({
-      search: (prev: z.infer<typeof modelsSearchSchema>) => ({
-        ...prev,
-        search: debouncedValue,
-      }),
+      search: (prev) => ({ ...prev, search }),
     });
-  }, [debouncedValue, navigate]);
+  };
 
   return (
-    <PageLayout<ModelDataType>
+    <ModelsPage
       route={Route}
-      searchValue={searchValue}
-      setSearchValue={setSearchValue}
-      tableProps={{
-        tableData: response.data.data,
-        columns: columns,
-      }}
-      formProps={{
-        children: <ModelsUpsertForm brands={response.fields.data.brands} />,
-        formDialogTitle: "Add Model",
-        okBtnProps: {
-          formId: "upsert-model",
-        },
-      }}
+      data={data.data}
+      fields={fields.data}
+      onSearchChange={handleSearchChange}
     />
   );
 }

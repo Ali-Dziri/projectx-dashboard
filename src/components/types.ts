@@ -2,16 +2,13 @@ import type { Columns, PaginatedData } from "@/types/common";
 import type { AnyRouteMatch } from "@tanstack/react-router";
 
 export interface FormDialogProps {
-  children: React.ReactNode;
+  children: React.ReactElement;
   formDialogTitle: string | React.ReactNode;
-  okBtnProps: {
-    formId: string;
-    isLoading?: boolean;
-    disabled?: boolean;
-    className?: string;
-  };
-  open: boolean;
-  setOpen: (open: boolean) => void;
+  formId: string;
+  handleFormSubmit: (
+    e?: React.BaseSyntheticEvent<object, any, any> | undefined,
+  ) => Promise<void>;
+  loading: boolean;
 }
 
 export type PageFormProps = Omit<FormDialogProps, "open" | "setOpen">;

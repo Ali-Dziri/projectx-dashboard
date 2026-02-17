@@ -3,7 +3,7 @@ import type { QueryParams, PaginatedData } from "@/types/common";
 import { PARTS } from "./endpoints.constants";
 import { router } from "@/main";
 import { toast } from "sonner";
-import type { PartsData, PartsFields, PartsFormData } from "./type";
+import type { PartsData, PartsFields, UpsertParts } from "./type";
 
 export class PartsService extends BaseApiService {
   async fetch(params: QueryParams) {
@@ -33,7 +33,7 @@ export class PartsService extends BaseApiService {
     return res;
   }
 
-  async add(data: PartsFormData) {
+  async add(data: UpsertParts) {
     const [res, err] = await this.apiCallWrapper<PartsData>({
       path: PARTS.ADD_PART,
       method: "post",
@@ -49,8 +49,24 @@ export class PartsService extends BaseApiService {
     return res.data;
   }
 
+  async update(id: string, data: UpsertParts) {
+    const [res, err] = await this.apiCallWrapper<PartsData>({
+      path: PARTS.UPDATE_PART(id),
+      method: "patch",
+      data,
+    });
+
+    if (err) {
+      toast.error(err.message);
+      throw err;
+    }
+    router.invalidate();
+    toast.success("Model update successfully");
+    return res.data;
+  }
+
   async delete(id: string) {
-    const [res, err] = await this.apiCallWrapper({
+    const [, err] = await this.apiCallWrapper({
       path: PARTS.REMOVE_PART(id),
       method: "delete",
     });
@@ -61,6 +77,5 @@ export class PartsService extends BaseApiService {
     }
     router.invalidate();
     toast.success("Model deleted successfully");
-    return res;
   }
 }

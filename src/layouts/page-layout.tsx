@@ -1,7 +1,5 @@
 import DataTable from "@/components/data-table";
 import { Input } from "@/components/ui/input";
-import FormDialog from "@/components/form-dialog";
-import { useState } from "react";
 import PaginationComponent from "@/components/pagination";
 import type { PageLayoutProps } from "./types";
 
@@ -10,10 +8,9 @@ export function PageLayout<T>({
   searchValue,
   setSearchValue,
   tableProps,
-  formProps,
+  formDialog,
 }: PageLayoutProps<T>) {
   const match = route.useMatch();
-  const [open, setOpen] = useState(false);
 
   return (
     <div className="flex flex-col gap-4">
@@ -25,14 +22,7 @@ export function PageLayout<T>({
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
         />
-        <FormDialog
-          formDialogTitle={formProps.formDialogTitle}
-          okBtnProps={formProps.okBtnProps}
-          open={open}
-          setOpen={setOpen}
-        >
-          {formProps.children}
-        </FormDialog>
+        {formDialog}
       </div>
       <div>
         <DataTable<T> {...tableProps} />

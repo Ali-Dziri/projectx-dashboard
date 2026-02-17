@@ -7,7 +7,6 @@ import {
 import { AppSidebar } from "@/components/app-sidebar";
 import CustomBreadcrumb from "@/components/custom-breadcrumb";
 import ToggleTheme from "@/components/toggle-theme";
-import { Toaster } from "@/components/ui/sonner";
 
 export default function RootLayout() {
   return (
@@ -25,7 +24,6 @@ export default function RootLayout() {
           <Outlet />
         </main>
       </SidebarInset>
-      <Toaster position="top-center" />
     </SidebarProvider>
   );
 }

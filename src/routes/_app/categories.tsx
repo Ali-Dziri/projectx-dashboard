@@ -1,19 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CategoriesService } from "@/features/categories/categories.service";
-import CategoriesUpsertForm from "@/features/categories/categories-upsert-form";
-import { columns } from "@/features/categories/columns";
 import { z } from "zod";
-import { PageLayout } from "@/layouts/page-layout";
-import useDebounceValue from "@/hooks/useDebounceValue";
-import { useEffect, useState } from "react";
-
-const categoriesService = new CategoriesService();
-
-interface CategoriesData {
-  id: string;
-  name: string;
-  description: string;
-}
+import {
+  categoriesModule,
+  CategoriesPage,
+} from "@/features/categories/categories.module";
 
 const brandsSearchSchema = z.object({
   page: z.number().default(1),
@@ -31,41 +21,26 @@ export const Route = createFileRoute("/_app/categories")({
     limit: search.limit,
     search: search.search,
   }),
-  loader: async ({ deps: { page, limit, search } }) =>
-    categoriesService.fetch({ page, limit, search }),
+  loader: async ({ deps: { page, limit, search } }) => {
+    return await categoriesModule.service.fetch({ page, limit, search });
+  },
   component: RouteComponent,
 });
 
 function RouteComponent() {
   const response = Route.useLoaderData();
-  const [searchValue, setSearchValue] = useState("");
-  const debouncedValue = useDebounceValue(searchValue, 500);
   const navigate = Route.useNavigate();
 
-  useEffect(() => {
+  const handleSearchChange = (search: string) => {
     navigate({
-      search: (prev: z.infer<typeof brandsSearchSchema>) => ({
-        ...prev,
-        search: debouncedValue,
-      }),
+      search: (prev) => ({ ...prev, search }),
     });
-  }, [debouncedValue, navigate]);
+  };
   return (
-    <PageLayout<CategoriesData>
+    <CategoriesPage
+      data={response.data}
       route={Route}
-      searchValue={searchValue}
-      setSearchValue={setSearchValue}
-      tableProps={{
-        tableData: response.data,
-        columns,
-      }}
-      formProps={{
-        children: <CategoriesUpsertForm />,
-        formDialogTitle: "Add Category",
-        okBtnProps: {
-          formId: "upsert-category",
-        },
-      }}
+      onSearchChange={handleSearchChange}
     />
   );
 }
