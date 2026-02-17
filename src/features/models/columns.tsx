@@ -1,18 +1,8 @@
 import type { Columns } from "@/types/common";
 import type { ModelDataType } from "./types";
 import dayjs from "dayjs";
-import { ModelsService } from "./models.service";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontalIcon, Pencil, Trash } from "lucide-react";
-import { Button } from "@/components/ui/button";
-
-const modelsService = new ModelsService();
+import { modelsModule } from "./models.module";
+import TableActions from "@/components/table-actions";
 
 export const columns: Columns<ModelDataType> = [
   {
@@ -34,27 +24,10 @@ export const columns: Columns<ModelDataType> = [
     key: "actions",
     name: "Actions",
     render: (item: ModelDataType) => (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="size-8">
-            <MoreHorizontalIcon />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem>
-            <Pencil /> Edit
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            variant="destructive"
-            onClick={() => modelsService.delete(item.id)}
-          >
-            <Trash />
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <TableActions<ModelDataType>
+        item={item}
+        deleteItem={() => modelsModule.service.delete(item.id)}
+      />
     ),
   },
 ];

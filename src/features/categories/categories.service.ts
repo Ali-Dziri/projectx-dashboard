@@ -2,6 +2,7 @@ import { router } from "@/main";
 import { BaseApiService } from "@/services/api.service";
 import type { PaginatedData, QueryParams } from "@/types/common";
 import { toast } from "sonner";
+import type { CategoriesData, UpsertCategory } from "./types";
 
 const CATEGORIES = {
   LIST_CATEGORIES: "/categories",
@@ -9,12 +10,6 @@ const CATEGORIES = {
   UPDATE_CATEGORY: (id: string) => `/categories/${id}`,
   REMOVE_CATEGORY: (id: string) => `/categories/${id}`,
 };
-
-interface CategoriesData {
-  id: string;
-  name: string;
-  description: string;
-}
 
 export class CategoriesService extends BaseApiService {
   async fetch(params: QueryParams) {
@@ -34,7 +29,7 @@ export class CategoriesService extends BaseApiService {
     return res;
   }
 
-  async add(data: { name: string; description?: string }) {
+  async add(data: UpsertCategory) {
     const [res, err] = await this.apiCallWrapper<CategoriesData>({
       path: CATEGORIES.ADD_CATEGORY,
       method: "post",
@@ -50,8 +45,24 @@ export class CategoriesService extends BaseApiService {
     return res.data;
   }
 
+  async update(id: string, data: UpsertCategory) {
+    const [res, err] = await this.apiCallWrapper<CategoriesData>({
+      path: CATEGORIES.UPDATE_CATEGORY(id),
+      method: "patch",
+      data,
+    });
+
+    if (err) {
+      toast.error(err.message);
+      throw err;
+    }
+    router.invalidate();
+    toast.success("Category updated successfully");
+    return res.data;
+  }
+
   async delete(id: string) {
-    const [res, err] = await this.apiCallWrapper({
+    const [, err] = await this.apiCallWrapper({
       path: CATEGORIES.REMOVE_CATEGORY(id),
       method: "delete",
     });
@@ -62,6 +73,5 @@ export class CategoriesService extends BaseApiService {
     }
     router.invalidate();
     toast.success("Category deleted successfully");
-    return res;
   }
 }

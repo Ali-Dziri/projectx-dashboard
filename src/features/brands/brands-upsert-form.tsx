@@ -6,7 +6,8 @@ import {
   FieldGroup,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useForm } from "@tanstack/react-form";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
   Select,
@@ -16,9 +17,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import countries from "../../assets/world.json";
-import { BrandsService } from "./brands.service";
-
-const brandsService = new BrandsService();
+import { useMutation } from "@tanstack/react-query";
+import FormDialog from "@/components/form-dialog";
+import type { BrandsData, UpsertBrand } from "./types";
+import { useDialog } from "@/hooks/use-dialog";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -28,132 +30,127 @@ const formSchema = z.object({
 
 type BrandFormValues = z.infer<typeof formSchema>;
 
-export default function BrandsUpsertForm() {
-  const defaultBrand: BrandFormValues = {
-    name: "",
-    website: "",
-    countryOfOrigin: "",
-  };
-  const form = useForm({
-    defaultValues: defaultBrand,
-    validators: {
-      onSubmit: formSchema,
-    },
-    onSubmit: async ({ value }) => {
-      return await brandsService.add(value);
+export default function BrandsUpsertForm({
+  addBrand,
+  updateBrand,
+}: {
+  addBrand: (data: UpsertBrand) => Promise<BrandsData>;
+  updateBrand: (id: string, data: UpsertBrand) => Promise<BrandsData>;
+}) {
+  const { payload } = useDialog<BrandsData>();
+
+  const upsertBrandMutation = useMutation({
+    mutationFn: async (values: BrandFormValues) => {
+      if (payload?.id) {
+        return await updateBrand(payload.id, values);
+      }
+      return await addBrand(values);
     },
   });
 
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    form.handleSubmit();
-  };
+  const form = useForm<BrandFormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      website: "",
+      countryOfOrigin: "",
+    },
+    values: payload ?? undefined,
+    mode: "onChange",
+  });
+
+  const onSubmit = form.handleSubmit(async (data) => {
+    const result = await upsertBrandMutation.mutateAsync(data);
+    if (result.id) {
+      form.reset();
+    }
+  });
 
   return (
-    <div>
-      <form
-        id="upsert-brand"
-        data-testid="upsert-brand"
-        onSubmit={handleFormSubmit}
-      >
-        <FieldGroup>
-          <form.Field
-            name="name"
-            children={(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid;
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor="name">Name</FieldLabel>
-                  <FieldContent>
-                    <Input
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      aria-invalid={isInvalid}
-                      type="text"
-                      placeholder="Samsung"
-                      required
-                    />
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
-                  </FieldContent>
-                </Field>
-              );
-            }}
-          />
-          <form.Field
-            name="website"
-            children={(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid;
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor="website">Website</FieldLabel>
-                  <FieldContent>
-                    <Input
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      aria-invalid={isInvalid}
-                      type="url"
-                      placeholder="https://www.samsung.com"
-                      required
-                    />
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
-                  </FieldContent>
-                </Field>
-              );
-            }}
-          />
-          <form.Field
-            name="countryOfOrigin"
-            children={(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid;
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor="countryOfOrigin">Country</FieldLabel>
-                  <FieldContent>
-                    <Select
-                      name={field.name}
-                      value={field.state.value}
-                      onValueChange={field.handleChange}
-                    >
-                      <SelectTrigger
-                        id="upsert-form-country-select"
-                        aria-invalid={isInvalid}
+    <FormDialog
+      handleFormSubmit={onSubmit}
+      formDialogTitle="Add new Brand"
+      formId="upset-brand"
+      loading={form.formState.isSubmitting}
+    >
+      <FieldGroup>
+        <Controller
+          name="name"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor="name">Name</FieldLabel>
+              <Input
+                {...field}
+                id="name"
+                aria-invalid={fieldState.invalid}
+                placeholder="Samsung"
+                autoComplete="off"
+                required
+              />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+        <Controller
+          name="website"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor="website">Website</FieldLabel>
+              <FieldContent>
+                <Input
+                  {...field}
+                  id="website"
+                  aria-invalid={fieldState.invalid}
+                  type="url"
+                  placeholder="https://www.samsung.com"
+                  required
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </FieldContent>
+            </Field>
+          )}
+        />
+        <Controller
+          name="countryOfOrigin"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor="countryOfOrigin">Country</FieldLabel>
+              <FieldContent>
+                <Select
+                  name={field.name}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                >
+                  <SelectTrigger
+                    id="upsert-form-country-select"
+                    aria-invalid={fieldState.invalid}
+                  >
+                    <SelectValue placeholder="Select a country" />
+                  </SelectTrigger>
+                  <SelectContent position="item-aligned">
+                    {countries.map((country) => (
+                      <SelectItem
+                        key={`country-${country.alpha2}-${country.id}`}
+                        value={country.alpha2}
                       >
-                        <SelectValue placeholder="Select a country" />
-                      </SelectTrigger>
-                      <SelectContent position="item-aligned">
-                        {countries.map((country) => (
-                          <SelectItem
-                            key={`country-${country.alpha2}-${country.id}`}
-                            value={country.alpha2}
-                          >
-                            {country.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
-                  </FieldContent>
-                </Field>
-              );
-            }}
-          />
-        </FieldGroup>
-      </form>
-    </div>
+                        {country.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </FieldContent>
+            </Field>
+          )}
+        />
+      </FieldGroup>
+    </FormDialog>
   );
 }

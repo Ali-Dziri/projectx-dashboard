@@ -6,103 +6,109 @@ import {
   FieldGroup,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useForm } from "@tanstack/react-form";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { CategoriesService } from "./categories.service";
-
-const categoriesService = new CategoriesService();
+import { useMutation } from "@tanstack/react-query";
+import FormDialog from "@/components/form-dialog";
+import type { CategoriesData, UpsertCategory } from "./types";
+import { useDialog } from "@/hooks/use-dialog";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   description: z.string().optional(),
 });
 
-type FormSchema = z.infer<typeof formSchema>;
+type CategoryFormSchemaType = z.infer<typeof formSchema>;
 
-export default function CategoriesUpsertForm() {
-  const defaultBrand: FormSchema = {
-    name: "",
-    description: "",
-  };
-  const form = useForm({
-    defaultValues: defaultBrand,
-    validators: {
-      onSubmit: formSchema,
-    },
-    onSubmit: async ({ value }) => {
-      return await categoriesService.add(value);
+export default function CategoriesUpsertForm({
+  addCategory,
+  updateCategory,
+}: {
+  addCategory: (data: UpsertCategory) => Promise<CategoriesData>;
+  updateCategory: (id: string, data: UpsertCategory) => Promise<CategoriesData>;
+}) {
+  const { payload } = useDialog<CategoriesData>();
+
+  const upsertCategoryMutation = useMutation({
+    mutationFn: async (values: CategoryFormSchemaType) => {
+      if (payload?.id) {
+        return await updateCategory(payload.id, values);
+      }
+      return await addCategory(values);
     },
   });
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    form.handleSubmit();
-  };
+
+  const form = useForm<CategoryFormSchemaType>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+    },
+    values: payload ?? undefined,
+    mode: "onChange",
+  });
+
+  const onSubmit = form.handleSubmit(async (data) => {
+    const result = await upsertCategoryMutation.mutateAsync(data);
+    if (result.id) {
+      form.reset();
+    }
+  });
 
   return (
-    <div>
-      <form
-        id="upsert-category"
-        data-testid="upsert-category"
-        onSubmit={handleFormSubmit}
-      >
-        <FieldGroup>
-          <form.Field
-            name="name"
-            children={(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid;
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor="name">Name</FieldLabel>
-                  <FieldContent>
-                    <Input
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      aria-invalid={isInvalid}
-                      type="text"
-                      placeholder="Samsung"
-                      required
-                    />
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
-                  </FieldContent>
-                </Field>
-              );
-            }}
-          />
-          <form.Field
-            name="description"
-            children={(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid;
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor="website">Description</FieldLabel>
-                  <FieldContent>
-                    <Input
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      aria-invalid={isInvalid}
-                      type="text"
-                      placeholder="Description"
-                    />
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
-                  </FieldContent>
-                </Field>
-              );
-            }}
-          />
-        </FieldGroup>
-      </form>
-    </div>
+    <FormDialog
+      handleFormSubmit={onSubmit}
+      formDialogTitle="Add new Category"
+      formId="upsert-category"
+      loading={form.formState.isSubmitting}
+    >
+      <FieldGroup>
+        <Controller
+          name="name"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor="name">Name</FieldLabel>
+              <FieldContent>
+                <Input
+                  {...field}
+                  id="name"
+                  aria-invalid={fieldState.invalid}
+                  type="text"
+                  placeholder="Battery"
+                  required
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </FieldContent>
+            </Field>
+          )}
+        />
+        <Controller
+          name="description"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor="description">description</FieldLabel>
+              <FieldContent>
+                <Input
+                  {...field}
+                  id="description"
+                  aria-invalid={fieldState.invalid}
+                  type="text"
+                  placeholder="battery category for phones"
+                  required
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </FieldContent>
+            </Field>
+          )}
+        />
+      </FieldGroup>
+    </FormDialog>
   );
 }

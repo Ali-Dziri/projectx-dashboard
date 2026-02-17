@@ -7,4 +7,10 @@ export type BrandsData = {
   countryOfOrigin: string;
 };
 
+export type UpsertBrand = {
+  name: string;
+  website?: string;
+  countryOfOrigin?: string;
+};
+
 export type BrandsPageProps = PaginatedData<BrandsData>;
