@@ -1,8 +1,8 @@
 import type { BrandsData } from "./types";
 import { Link } from "@tanstack/react-router";
-import type { Columns } from "@/types/common";
+import type { Columns } from "@/shared/types/common";
 import { brandsModule } from "./brands.module";
-import TableActions from "@/components/table-actions";
+import TableActions from "@/shared/components/table-actions";
 
 export const columns: Columns<BrandsData> = [
   {

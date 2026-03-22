@@ -4,8 +4,8 @@ import {
   FieldError,
   FieldLabel,
   FieldGroup,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+} from "@/shared/components/ui/field";
+import { Input } from "@/shared/components/ui/input";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -15,12 +15,14 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/shared/components/ui/select";
 import countries from "../../assets/world.json";
 import { useMutation } from "@tanstack/react-query";
-import FormDialog from "@/components/form-dialog";
+import FormDialog from "@/shared/components/form-dialog";
 import type { BrandsData, UpsertBrand } from "./types";
-import { useDialog } from "@/hooks/use-dialog";
+import { useDialog } from "@/shared/hooks/use-dialog";
+import { toast } from "sonner";
+import { router } from "@/main";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -37,14 +39,23 @@ export default function BrandsUpsertForm({
   addBrand: (data: UpsertBrand) => Promise<BrandsData>;
   updateBrand: (id: string, data: UpsertBrand) => Promise<BrandsData>;
 }) {
-  const { payload } = useDialog<BrandsData>();
+  const { payload, closeDialog } = useDialog<BrandsData>();
 
-  const upsertBrandMutation = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: async (values: BrandFormValues) => {
       if (payload?.id) {
         return await updateBrand(payload.id, values);
       }
       return await addBrand(values);
+    },
+    onSuccess() {
+      toast.success("Brand upserted successfully");
+      form.reset();
+      closeDialog();
+      router.invalidate();
+    },
+    onError(error) {
+      toast.error(error.message);
     },
   });
 
@@ -60,10 +71,7 @@ export default function BrandsUpsertForm({
   });
 
   const onSubmit = form.handleSubmit(async (data) => {
-    const result = await upsertBrandMutation.mutateAsync(data);
-    if (result.id) {
-      form.reset();
-    }
+    await mutate(data);
   });
 
   return (
@@ -71,7 +79,7 @@ export default function BrandsUpsertForm({
       handleFormSubmit={onSubmit}
       formDialogTitle="Add new Brand"
       formId="upset-brand"
-      loading={form.formState.isSubmitting}
+      loading={isPending}
     >
       <FieldGroup>
         <Controller

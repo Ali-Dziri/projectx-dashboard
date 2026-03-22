@@ -1,15 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { z } from "zod";
 import { partsModule, PartsPage } from "@/features/parts/parts.module";
-
-const partsSearchSchema = z.object({
-  page: z.number().default(1),
-  limit: z.number().optional().default(10),
-  search: z.string().optional().default(""),
-});
+import { searchParamsSchema } from "@/shared/types/schemas";
 
 export const Route = createFileRoute("/_app/parts")({
-  validateSearch: (search) => partsSearchSchema.parse(search),
+  validateSearch: searchParamsSchema,
   staticData: {
     title: "Phones Parts",
   },

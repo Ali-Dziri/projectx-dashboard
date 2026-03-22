@@ -1,8 +1,6 @@
 import { BaseApiService } from "@/services/api.service";
-import type { QueryParams, PaginatedData } from "@/types/common";
+import type { QueryParams, PaginatedData } from "@/shared/types/common";
 import { PARTS } from "./endpoints.constants";
-import { router } from "@/main";
-import { toast } from "sonner";
 import type { PartsData, PartsFields, UpsertParts } from "./type";
 
 export class PartsService extends BaseApiService {
@@ -41,11 +39,8 @@ export class PartsService extends BaseApiService {
     });
 
     if (err) {
-      toast.error(err.message);
       throw err;
     }
-    router.invalidate();
-    toast.success("Model added successfully");
     return res.data;
   }
 
@@ -57,11 +52,8 @@ export class PartsService extends BaseApiService {
     });
 
     if (err) {
-      toast.error(err.message);
       throw err;
     }
-    router.invalidate();
-    toast.success("Model update successfully");
     return res.data;
   }
 
@@ -72,10 +64,7 @@ export class PartsService extends BaseApiService {
     });
 
     if (err) {
-      toast.error(err.message);
       throw err;
     }
-    router.invalidate();
-    toast.success("Model deleted successfully");
   }
 }

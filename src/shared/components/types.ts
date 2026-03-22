@@ -1,4 +1,4 @@
-import type { Columns, PaginatedData } from "@/types/common";
+import type { Columns, PaginatedData } from "@/shared/types/common";
 import type { AnyRouteMatch } from "@tanstack/react-router";
 
 export interface FormDialogProps {

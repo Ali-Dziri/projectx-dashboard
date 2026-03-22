@@ -1,6 +1,6 @@
-import DataTable from "@/components/data-table";
-import { Input } from "@/components/ui/input";
-import PaginationComponent from "@/components/pagination";
+import DataTable from "@/shared/components/data-table";
+import { Input } from "@/shared/components/ui/input";
+import PaginationComponent from "@/shared/components/pagination";
 import type { PageLayoutProps } from "./types";
 
 export function PageLayout<T>({

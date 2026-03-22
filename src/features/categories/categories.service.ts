@@ -1,7 +1,5 @@
-import { router } from "@/main";
 import { BaseApiService } from "@/services/api.service";
-import type { PaginatedData, QueryParams } from "@/types/common";
-import { toast } from "sonner";
+import type { PaginatedData, QueryParams } from "@/shared/types/common";
 import type { CategoriesData, UpsertCategory } from "./types";
 
 const CATEGORIES = {
@@ -37,11 +35,8 @@ export class CategoriesService extends BaseApiService {
     });
 
     if (err) {
-      toast.error(err.message);
       throw err;
     }
-    router.invalidate();
-    toast.success("Category added successfully");
     return res.data;
   }
 
@@ -53,11 +48,8 @@ export class CategoriesService extends BaseApiService {
     });
 
     if (err) {
-      toast.error(err.message);
       throw err;
     }
-    router.invalidate();
-    toast.success("Category updated successfully");
     return res.data;
   }
 
@@ -68,10 +60,7 @@ export class CategoriesService extends BaseApiService {
     });
 
     if (err) {
-      toast.error(err.message);
       throw err;
     }
-    router.invalidate();
-    toast.success("Category deleted successfully");
   }
 }

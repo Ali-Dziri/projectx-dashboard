@@ -8,10 +8,12 @@ import {
   AlertDialogHeader,
   AlertDialogMedia,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@/shared/components/ui/alert-dialog";
 import { Trash2Icon } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { Spinner } from "./ui/spinner";
+import { toast } from "sonner";
+import { router } from "@/main";
 
 interface AlertDialogDestructiveProps {
   open: boolean;
@@ -24,8 +26,15 @@ export function AlertDialogDestructive({
   setOpen,
   deleteItem,
 }: AlertDialogDestructiveProps) {
-  const deleteItemMutation = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: deleteItem,
+    onSuccess() {
+      toast.success("Brand deleted successfully");
+      router.invalidate();
+    },
+    onError(error) {
+      toast.error(error.message);
+    },
   });
 
   return (
@@ -42,13 +51,8 @@ export function AlertDialogDestructive({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            variant="destructive"
-            onClick={() => deleteItemMutation.mutate()}
-          >
-            {deleteItemMutation.isPending && (
-              <Spinner data-icon="inline-start" />
-            )}
+          <AlertDialogAction variant="destructive" onClick={() => mutate()}>
+            {isPending && <Spinner data-icon="inline-start" />}
             Delete
           </AlertDialogAction>
         </AlertDialogFooter>

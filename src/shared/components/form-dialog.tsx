@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -8,12 +8,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@/shared/components/ui/dialog";
 import { PlusIcon } from "lucide-react";
 import type { FormDialogProps } from "./types";
 import { Field } from "./ui/field";
 import { Spinner } from "./ui/spinner";
-import { useDialog } from "@/hooks/use-dialog";
+import { useDialog } from "@/shared/hooks/use-dialog";
 
 export default function FormDialog({
   children,

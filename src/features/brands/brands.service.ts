@@ -1,9 +1,7 @@
 import { BaseApiService } from "@/services/api.service";
 import type { BrandsData, UpsertBrand } from "./types";
-import type { PaginatedData, QueryParams } from "@/types/common";
+import type { PaginatedData, QueryParams } from "@/shared/types/common";
 import { BRANDS_ENDPOINTS } from "./endpoints.constant";
-import { router } from "@/main";
-import { toast } from "sonner";
 
 export class BrandsService extends BaseApiService {
   async fetch(params: QueryParams) {
@@ -29,11 +27,8 @@ export class BrandsService extends BaseApiService {
     });
 
     if (err) {
-      toast.error(err.message);
       throw err;
     }
-    router.invalidate();
-    toast.success("Brand added successfully");
     return res.data;
   }
 
@@ -45,11 +40,8 @@ export class BrandsService extends BaseApiService {
     });
 
     if (err) {
-      toast.error(err.message);
       throw err;
     }
-    router.invalidate();
-    toast.success("Brand updated successfully");
     return res.data;
   }
 
@@ -60,10 +52,7 @@ export class BrandsService extends BaseApiService {
     });
 
     if (err) {
-      toast.error(err.message);
       throw err;
     }
-    router.invalidate();
-    toast.success("Brand deleted successfully");
   }
 }

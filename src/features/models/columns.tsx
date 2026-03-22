@@ -1,8 +1,8 @@
-import type { Columns } from "@/types/common";
+import type { Columns } from "@/shared/types/common";
 import type { ModelDataType } from "./types";
 import dayjs from "dayjs";
 import { modelsModule } from "./models.module";
-import TableActions from "@/components/table-actions";
+import TableActions from "@/shared/components/table-actions";
 
 export const columns: Columns<ModelDataType> = [
   {

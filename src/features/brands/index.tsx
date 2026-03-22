@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { PageLayout } from "@/layouts/page-layout";
-import useDebounceValue from "@/hooks/useDebounceValue";
+import useDebounceValue from "@/shared/hooks/useDebounceValue";
 import type { AnyRoute } from "@tanstack/react-router";
-import type { PaginatedData } from "@/types/common";
+import type { PaginatedData } from "@/shared/types/common";
 import { brandsModule, type BrandsData } from "./brands.module";
 import BrandsUpsertForm from "./brands-upsert-form";
 

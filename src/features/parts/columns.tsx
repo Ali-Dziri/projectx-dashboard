@@ -1,8 +1,8 @@
-import type { Columns } from "@/types/common";
+import type { Columns } from "@/shared/types/common";
 import type { PartsData } from "./type";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/shared/components/ui/badge";
 import { partsModule } from "./parts.module";
-import TableActions from "@/components/table-actions";
+import TableActions from "@/shared/components/table-actions";
 
 export const columns: Columns<PartsData> = [
   {

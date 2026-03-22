@@ -4,12 +4,12 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+} from "@/shared/components/ui/dropdown-menu";
+import { Button } from "@/shared/components/ui/button";
 import { MoreHorizontalIcon, Pencil, Trash } from "lucide-react";
 import { AlertDialogDestructive } from "./alert-dialog-destructive";
 import { useState } from "react";
-import { useDialog } from "@/hooks/use-dialog";
+import { useDialog } from "@/shared/hooks/use-dialog";
 
 interface TableActionsProps<T> {
   item: T;

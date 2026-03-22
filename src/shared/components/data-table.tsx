@@ -5,7 +5,7 @@ import {
   TableBody,
   TableCell,
   TableHead,
-} from "@/components/ui/table";
+} from "@/shared/components/ui/table";
 import type { TableProps } from "./types";
 
 function DataTable<T>({ tableData, columns }: TableProps<T>) {

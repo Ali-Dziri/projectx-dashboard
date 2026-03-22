@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { PageLayout } from "@/layouts/page-layout";
-import useDebounceValue from "@/hooks/useDebounceValue";
+import useDebounceValue from "@/shared/hooks/useDebounceValue";
 import type { AnyRoute } from "@tanstack/react-router";
-import type { PaginatedData } from "@/types/common";
+import type { PaginatedData } from "@/shared/types/common";
 import ModelsUpsertForm from "./models-upsert-form";
 import { modelsModule, type ModelDataType, type Fields } from "./models.module";
 
@@ -38,6 +38,7 @@ export function ModelsPage({
         <ModelsUpsertForm
           addModel={modelsModule.service.add.bind(modelsModule.service)}
           brands={fields.brands}
+          updateModel={modelsModule.service.update.bind(modelsModule.service)}
         />
       }
     />

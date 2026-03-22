@@ -3,12 +3,24 @@ import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
-import CustomBreadcrumb from "@/components/custom-breadcrumb";
-import ToggleTheme from "@/components/toggle-theme";
+} from "@/shared/components/ui/sidebar";
+import { AppSidebar } from "@/shared/components/app-sidebar";
+import CustomBreadcrumb from "@/shared/components/custom-breadcrumb";
+import ToggleTheme from "@/shared/components/toggle-theme";
+import { Progress } from "@/shared/components/ui/progress";
+import { router } from "@/main";
+import { useState } from "react";
 
 export default function RootLayout() {
+  const [display, setDisplay] = useState(false);
+
+  router.subscribe("onBeforeLoad", ({ pathChanged }) => {
+    setDisplay(() => pathChanged && true);
+  });
+  router.subscribe("onResolved", () => {
+    setDisplay(false);
+  });
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -21,6 +33,7 @@ export default function RootLayout() {
           <ToggleTheme />
         </header>
         <main className="flex flex-1 flex-col gap-4 p-4">
+          {display && <Progress indeterminate />}
           <Outlet />
         </main>
       </SidebarInset>

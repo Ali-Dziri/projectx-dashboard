@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { PageLayout } from "@/layouts/page-layout";
-import useDebounceValue from "@/hooks/useDebounceValue";
+import useDebounceValue from "@/shared/hooks/useDebounceValue";
 import type { AnyRoute } from "@tanstack/react-router";
-import type { PaginatedData } from "@/types/common";
+import type { PaginatedData } from "@/shared/types/common";
 import { categoriesModule, type CategoriesData } from "./categories.module";
 import CategoriesUpsertForm from "./categories-upsert-form";
 
@@ -35,6 +35,9 @@ export function CategoriesPage({
       formDialog={
         <CategoriesUpsertForm
           addCategory={categoriesModule.service.add.bind(
+            categoriesModule.service,
+          )}
+          updateCategory={categoriesModule.service.update.bind(
             categoriesModule.service,
           )}
         />

@@ -1,4 +1,4 @@
-import type { PaginatedData } from "@/types/common";
+import type { PaginatedData } from "@/shared/types/common";
 
 export type BrandsData = {
   id: string;

@@ -10,7 +10,7 @@ import {
   SidebarMenuItem,
   SidebarMenuSub,
   SidebarMenuSubItem,
-} from "@/components/ui/sidebar";
+} from "@/shared/components/ui/sidebar";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -25,10 +25,31 @@ import {
 } from "./ui/collapsible";
 import { ChevronDown, ChevronUp, Smartphone, User2 } from "lucide-react";
 import { AuthService } from "@/features/auth/auth.service";
+import { useLocation } from "@tanstack/react-router";
 
 const authService = new AuthService();
 
+const items = [
+  {
+    title: "Brands",
+    path: "/brands",
+  },
+  {
+    title: "Categories",
+    path: "/categories",
+  },
+  {
+    title: "Models",
+    path: "/models",
+  },
+  {
+    title: "Parts",
+    path: "/parts",
+  },
+];
+
 export function AppSidebar() {
+  const location = useLocation();
   return (
     <Sidebar>
       <SidebarHeader>
@@ -59,26 +80,16 @@ export function AppSidebar() {
                       </CollapsibleTrigger>
                       <CollapsibleContent>
                         <SidebarMenuSub>
-                          <SidebarMenuSubItem>
-                            <SidebarMenuButton asChild>
-                              <Link to="/brands">Brands</Link>
-                            </SidebarMenuButton>
-                          </SidebarMenuSubItem>
-                          <SidebarMenuSubItem>
-                            <SidebarMenuButton asChild>
-                              <Link to="/categories">Categories</Link>
-                            </SidebarMenuButton>
-                          </SidebarMenuSubItem>
-                          <SidebarMenuSubItem>
-                            <SidebarMenuButton asChild>
-                              <Link to="/models">Models</Link>
-                            </SidebarMenuButton>
-                          </SidebarMenuSubItem>
-                          <SidebarMenuSubItem>
-                            <SidebarMenuButton asChild>
-                              <Link to="/parts">Parts</Link>
-                            </SidebarMenuButton>
-                          </SidebarMenuSubItem>
+                          {items.map((item) => (
+                            <SidebarMenuSubItem key={item.title}>
+                              <SidebarMenuButton
+                                asChild
+                                isActive={location.pathname === item.path}
+                              >
+                                <Link to={item.path}>{item.title}</Link>
+                              </SidebarMenuButton>
+                            </SidebarMenuSubItem>
+                          ))}
                         </SidebarMenuSub>
                       </CollapsibleContent>
                     </SidebarMenuItem>

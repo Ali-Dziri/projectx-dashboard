@@ -4,8 +4,8 @@ import {
   FieldError,
   FieldLabel,
   FieldGroup,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+} from "@/shared/components/ui/field";
+import { Input } from "@/shared/components/ui/input";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -15,20 +15,22 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/shared/components/ui/select";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
+} from "@/shared/components/ui/popover";
+import { Button } from "@/shared/components/ui/button";
 import { ChevronDownIcon } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
-import FormDialog from "@/components/form-dialog";
+import { Calendar } from "@/shared/components/ui/calendar";
+import FormDialog from "@/shared/components/form-dialog";
 import dayjs from "dayjs";
 import { useMutation } from "@tanstack/react-query";
 import type { ModelDataType, UpsertModel } from "./types";
-import { useDialog } from "@/hooks/use-dialog";
+import { useDialog } from "@/shared/hooks/use-dialog";
+import { router } from "@/main";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -47,14 +49,23 @@ export default function ModelsUpsertForm({
   addModel: (data: UpsertModel) => Promise<ModelDataType>;
   updateModel: (id: string, data: UpsertModel) => Promise<ModelDataType>;
 }) {
-  const { payload } = useDialog<ModelDataType>();
+  const { payload, closeDialog } = useDialog<ModelDataType>();
 
-  const upsertModelMutation = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: async (values: ModelFormType) => {
       if (payload?.id) {
         return await updateModel(payload.id, values);
       }
       return await addModel(values);
+    },
+    onSuccess() {
+      toast.success("Model upserted successfully");
+      form.reset();
+      closeDialog();
+      router.invalidate();
+    },
+    onError(error) {
+      toast.error(error.message);
     },
   });
 
@@ -74,11 +85,8 @@ export default function ModelsUpsertForm({
     mode: "onChange",
   });
 
-  const onSubmit = form.handleSubmit(async (data) => {
-    const result = await upsertModelMutation.mutateAsync(data);
-    if (result.id) {
-      form.reset();
-    }
+  const onSubmit = form.handleSubmit((data) => {
+    mutate(data);
   });
 
   return (
@@ -86,7 +94,7 @@ export default function ModelsUpsertForm({
       handleFormSubmit={onSubmit}
       formDialogTitle="Add new Model"
       formId="upsert-model"
-      loading={form.formState.isSubmitting}
+      loading={isPending}
     >
       <FieldGroup>
         <Controller

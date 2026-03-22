@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import RootLayout from "@/layouts/root-layout";
-import CustomErrorComponent from "@/components/errors/custom-error-component";
+import CustomErrorComponent from "@/shared/components/errors/custom-error-component";
 import { tokenManager } from "@/utils/token-manipulation";
 
 export const Route = createFileRoute("/_app")({

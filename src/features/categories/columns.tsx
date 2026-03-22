@@ -1,6 +1,6 @@
-import type { Columns } from "@/types/common";
+import type { Columns } from "@/shared/types/common";
 import { categoriesModule } from "./categories.module";
-import TableActions from "@/components/table-actions";
+import TableActions from "@/shared/components/table-actions";
 interface CategoriesData {
   id: string;
   name: string;

@@ -4,15 +4,17 @@ import {
   FieldError,
   FieldLabel,
   FieldGroup,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+} from "@/shared/components/ui/field";
+import { Input } from "@/shared/components/ui/input";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
-import FormDialog from "@/components/form-dialog";
+import FormDialog from "@/shared/components/form-dialog";
 import type { CategoriesData, UpsertCategory } from "./types";
-import { useDialog } from "@/hooks/use-dialog";
+import { useDialog } from "@/shared/hooks/use-dialog";
+import { toast } from "sonner";
+import { router } from "@/main";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -28,14 +30,23 @@ export default function CategoriesUpsertForm({
   addCategory: (data: UpsertCategory) => Promise<CategoriesData>;
   updateCategory: (id: string, data: UpsertCategory) => Promise<CategoriesData>;
 }) {
-  const { payload } = useDialog<CategoriesData>();
+  const { payload, closeDialog } = useDialog<CategoriesData>();
 
-  const upsertCategoryMutation = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: async (values: CategoryFormSchemaType) => {
       if (payload?.id) {
         return await updateCategory(payload.id, values);
       }
       return await addCategory(values);
+    },
+    onSuccess() {
+      toast.success("Category upserted successfully");
+      form.reset();
+      closeDialog();
+      router.invalidate();
+    },
+    onError(error) {
+      toast.error(error.message);
     },
   });
 
@@ -49,11 +60,8 @@ export default function CategoriesUpsertForm({
     mode: "onChange",
   });
 
-  const onSubmit = form.handleSubmit(async (data) => {
-    const result = await upsertCategoryMutation.mutateAsync(data);
-    if (result.id) {
-      form.reset();
-    }
+  const onSubmit = form.handleSubmit((data) => {
+    mutate(data);
   });
 
   return (
@@ -61,7 +69,7 @@ export default function CategoriesUpsertForm({
       handleFormSubmit={onSubmit}
       formDialogTitle="Add new Category"
       formId="upsert-category"
-      loading={form.formState.isSubmitting}
+      loading={isPending}
     >
       <FieldGroup>
         <Controller

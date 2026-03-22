@@ -7,36 +7,38 @@ import {
   FieldError,
   FieldLabel,
   FieldGroup,
-} from "@/components/ui/field";
+} from "@/shared/components/ui/field";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
+} from "@/shared/components/ui/select";
+import { Input } from "@/shared/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
+} from "@/shared/components/ui/popover";
+import { Button } from "@/shared/components/ui/button";
 import { Check, ChevronsUpDown, X } from "lucide-react";
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/shared/components/ui/badge";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-} from "@/components/ui/command";
+} from "@/shared/components/ui/command";
 import { cn } from "@/lib/utils";
 import type { PartsData, UpsertParts } from "./type";
 import { useMutation } from "@tanstack/react-query";
-import FormDialog from "@/components/form-dialog";
-import { useDialog } from "@/hooks/use-dialog";
+import FormDialog from "@/shared/components/form-dialog";
+import { useDialog } from "@/shared/hooks/use-dialog";
+import { router } from "@/main";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -58,15 +60,24 @@ export default function PartsUpsertForm({
   addPart: (data: UpsertParts) => Promise<PartsData>;
   updatePart: (id: string, data: UpsertParts) => Promise<PartsData>;
 }) {
-  const { payload } = useDialog<PartsData>();
+  const { payload, closeDialog } = useDialog<PartsData>();
   const [open, setOpen] = useState(false);
 
-  const upsertPartMutation = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: async (values: PartsFormData) => {
       if (payload?.id) {
         return await updatePart(payload.id, values);
       }
       return await addPart(values);
+    },
+    onSuccess() {
+      toast.success("Part upserted successfully");
+      form.reset();
+      closeDialog();
+      router.invalidate();
+    },
+    onError(error) {
+      toast.error(error.message);
     },
   });
 
@@ -89,11 +100,8 @@ export default function PartsUpsertForm({
     mode: "onChange",
   });
 
-  const onSubmit = form.handleSubmit(async (data) => {
-    const result = await upsertPartMutation.mutateAsync(data);
-    if (result.id) {
-      form.reset();
-    }
+  const onSubmit = form.handleSubmit((data) => {
+    mutate(data);
   });
 
   return (
@@ -101,7 +109,7 @@ export default function PartsUpsertForm({
       handleFormSubmit={onSubmit}
       formDialogTitle="Add new Part"
       formId="upsert-part"
-      loading={form.formState.isSubmitting}
+      loading={isPending}
     >
       <FieldGroup>
         <Controller

@@ -5,7 +5,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination";
+} from "@/shared/components/ui/pagination";
 import type { PaginationProps } from "./types";
 
 export default function PaginationComponent({
@@ -21,7 +21,7 @@ export default function PaginationComponent({
             from={path}
             search={(prev) => ({
               ...prev,
-              page: prev.page > 1 ? prev.page - 1 : prev.page,
+              page: prev.page && prev.page > 1 ? prev.page - 1 : prev.page,
             })}
           />
         </PaginationItem>
@@ -42,7 +42,8 @@ export default function PaginationComponent({
             from={path}
             search={(prev) => ({
               ...prev,
-              page: prev.page < totalPages ? prev.page + 1 : prev.page,
+              page:
+                prev.page && prev.page < totalPages ? prev.page + 1 : prev.page,
             })}
           />
         </PaginationItem>

@@ -1,15 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { z } from "zod";
 import { modelsModule, ModelsPage } from "@/features/models/models.module";
-
-const modelsSearchSchema = z.object({
-  page: z.number().default(1),
-  limit: z.number().optional().default(10),
-  search: z.string().optional().default(""),
-});
+import { searchParamsSchema } from "@/shared/types/schemas";
 
 export const Route = createFileRoute("/_app/models")({
-  validateSearch: (search) => modelsSearchSchema.parse(search),
+  validateSearch: searchParamsSchema,
   staticData: {
     title: "Phones Models",
   },

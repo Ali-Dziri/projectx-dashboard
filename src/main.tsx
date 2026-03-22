@@ -1,11 +1,11 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
-import NotFound from "./components/errors/not-found";
-import ThemeProvider from "./components/theme-provider";
+import NotFound from "./shared/components/errors/not-found";
+import ThemeProvider from "./shared/components/theme-provider";
 import { routeTree } from "./routeTree.gen";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { DialogProvider } from "./components/form-dialog-provider";
+import { DialogProvider } from "./shared/components/form-dialog-provider";
 import "./index.css";
 
 const queryClient = new QueryClient();

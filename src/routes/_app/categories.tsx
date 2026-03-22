@@ -1,18 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { z } from "zod";
 import {
   categoriesModule,
   CategoriesPage,
 } from "@/features/categories/categories.module";
-
-const brandsSearchSchema = z.object({
-  page: z.number().default(1),
-  limit: z.number().optional().default(10),
-  search: z.string().optional().default(""),
-});
+import { searchParamsSchema } from "@/shared/types/schemas";
 
 export const Route = createFileRoute("/_app/categories")({
-  validateSearch: (search) => brandsSearchSchema.parse(search),
+  validateSearch: searchParamsSchema.parse,
   staticData: {
     title: "Phones Categories",
   },

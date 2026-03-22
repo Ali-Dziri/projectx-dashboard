@@ -1,4 +1,4 @@
-import type { TableProps } from "@/components/types";
+import type { TableProps } from "@/shared/components/types";
 import type { AnyRoute } from "@tanstack/react-router";
 
 export interface PageLayoutProps<T> {

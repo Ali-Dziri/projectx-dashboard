@@ -12,7 +12,7 @@ export type PaginatedData<T> = {
 
 export type QueryParams = {
   page: number;
-  limit: number;
+  limit?: number;
   search?: string;
 };
 

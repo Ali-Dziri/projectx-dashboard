@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { PageLayout } from "@/layouts/page-layout";
-import useDebounceValue from "@/hooks/useDebounceValue";
+import useDebounceValue from "@/shared/hooks/useDebounceValue";
 import { partsModule } from "./parts.module";
 import PartsUpsertForm from "./parts-upsert-form";
 import type { PartsData, PartsFields } from "./type";
 import type { AnyRoute } from "@tanstack/react-router";
-import type { PaginatedData } from "@/types/common";
+import type { PaginatedData } from "@/shared/types/common";
 
 interface PartsPageProps {
   data: PaginatedData<PartsData>;
@@ -41,6 +41,7 @@ export function PartsPage({
           models={fields.models}
           categories={fields.categories}
           addPart={partsModule.service.add.bind(partsModule.service)}
+          updatePart={partsModule.service.update.bind(partsModule.service)}
         />
       }
     />
