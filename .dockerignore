@@ -1,0 +1,25 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+
+# Git
+.git
+.gitignore
+
+# Env files — don't bake secrets into the image context
+.env
+.env.*
+!.env.example
+
+# Editor / OS
+.DS_Store
+.vscode
+.idea
+*.log
+npm-debug.log*
+
+# Docker files themselves (not needed in context)
+Dockerfile
+docker-compose*.yml

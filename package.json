@@ -8,7 +8,12 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "docker:build-start": "docker compose up --build -d",
+    "docker:build": "docker compose build",
+    "docker:start": "docker compose up",
+    "docker:stop": "docker compose down",
+    "docker:logs": "docker compose logs -f"
   },
   "dependencies": {
     "@base-ui/react": "^1.1.0",

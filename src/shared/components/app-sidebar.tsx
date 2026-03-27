@@ -57,7 +57,7 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link to="/">
-                <span className="font-medium text-xl">Project X</span>
+                <span className="font-medium text-xl">Fix Max</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
